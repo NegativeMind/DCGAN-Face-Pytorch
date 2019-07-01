@@ -1,4 +1,4 @@
-# dcgan_face
+# DCGAN-Face-Pytorch
 
 https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html
 
