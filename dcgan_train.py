@@ -183,11 +183,11 @@ if __name__ == '__main__':
             
             iters += 1
 
-        # Plot the fake images from the last epoch
-        plt.figure(figsize=(10, 10))
-        plt.title("Fake Images")
-        plt.imshow(np.transpose(img_list[-1], (1, 2, 0)))
-        plt.savefig('./generated/generate_' + str(epoch) + '.png')
+            # Plot the fake images from the last epoch
+            plt.figure(figsize=(10, 10))
+            plt.title("Fake Images")
+            plt.imshow(np.transpose(img_list[-1], (1, 2, 0)))
+            plt.savefig('./generated/generate_' + str(iters) + '.png')
 
 
     # Save models
