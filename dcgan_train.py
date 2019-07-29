@@ -118,8 +118,6 @@ if __name__ == '__main__':
 
     iters = 0
 
-    
-    preview_count = 0
     # Training Loop
     print("Starting Training Loop...")
     for epoch in range(num_epochs):# For each epoch
@@ -191,40 +189,36 @@ if __name__ == '__main__':
                     fake = netG(fixed_noise).detach().cpu()
                     img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
 
-                # Plot the fake images from the last epoch
-                plt.figure(figsize=(10, 10))
-                plt.title("Fake Images")
-                plt.imshow(np.transpose(img_list[-1], (1, 2, 0)))
-                plt.savefig('./generated/generate_' + str(preview_count) + '.png')
+            # Plot the fake images from the last epoch
+            plt.figure(figsize=(10, 10))
+            plt.title("Fake Images")
+            plt.imshow(np.transpose(img_list[-1], (1, 2, 0)))
+            plt.savefig('./generated/generate_' + str(iters) + '.png')
 
-                preview_count += 1
-
-
-            # Save and plot Statistics
-            np.save(os.path.join(save_dir, 'd_losses.npy'), d_losses)
-            np.save(os.path.join(save_dir, 'g_losses.npy'), g_losses)
-            np.save(os.path.join(save_dir, 'fake_scores.npy'), fake_scores)
-            np.save(os.path.join(save_dir, 'real_scores.npy'), real_scores)
-    
-            plt.figure()
-            pylab.xlim(0, num_epochs + 1)
-            plt.plot(range(1, num_epochs + 1), d_losses, label='d loss')
-            plt.plot(range(1, num_epochs + 1), g_losses, label='g loss')    
-            plt.legend()
-            plt.savefig(os.path.join(save_dir, 'loss.pdf'))
-            plt.close()
-
-            plt.figure()
-            pylab.xlim(0, num_epochs + 1)
-            pylab.ylim(0, 1)
-            plt.plot(range(1, num_epochs + 1), fake_scores, label='fake score')
-            plt.plot(range(1, num_epochs + 1), real_scores, label='real score')    
-            plt.legend()
-            plt.savefig(os.path.join(save_dir, 'accuracy.pdf'))
-            plt.close()
-            
             iters += 1
 
+        # Save and plot Statistics
+        np.save(os.path.join(save_dir, 'd_losses.npy'), d_losses)
+        np.save(os.path.join(save_dir, 'g_losses.npy'), g_losses)
+        np.save(os.path.join(save_dir, 'fake_scores.npy'), fake_scores)
+        np.save(os.path.join(save_dir, 'real_scores.npy'), real_scores)
+    
+        plt.figure()
+        pylab.xlim(0, num_epochs + 1)
+        plt.plot(range(1, num_epochs + 1), d_losses, label='d loss')
+        plt.plot(range(1, num_epochs + 1), g_losses, label='g loss')    
+        plt.legend()
+        plt.savefig(os.path.join(save_dir, 'loss.pdf'))
+        plt.close()
+
+        plt.figure()
+        pylab.xlim(0, num_epochs + 1)
+        pylab.ylim(0, 1)
+        plt.plot(range(1, num_epochs + 1), fake_scores, label='fake score')
+        plt.plot(range(1, num_epochs + 1), real_scores, label='real score')
+        plt.legend()
+        plt.savefig(os.path.join(save_dir, 'accuracy.pdf'))
+        plt.close()
 
 
     # Save models
