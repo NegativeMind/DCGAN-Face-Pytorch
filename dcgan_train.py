@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import os
 import random
 import torch
 import torch.nn as nn
@@ -39,7 +38,7 @@ if __name__ == '__main__':
     random.seed(manualSeed)
     torch.manual_seed(manualSeed)
 
-    dataroot = "./data/celeba" # Root directory for dataset 
+    dataroot = './data/celeba' # Root directory for dataset (subdirectory:img_align_celeba)
     # Celeb-A Faces dataset http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
     # https://drive.google.com/drive/folders/0B7EVK8r0v71pTUZsaXdaSnZBZzg
 
@@ -180,14 +179,15 @@ if __name__ == '__main__':
                 with torch.no_grad():
                     fake = netG(fixed_noise).detach().cpu()
                     img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
+
+                # Plot the fake images from the last epoch
+                plt.figure(figsize=(10, 10))
+                plt.title("Fake Images")
+                plt.imshow(np.transpose(img_list[-1], (1, 2, 0)))
+                plt.savefig('./generated/generate_' + str(iters) + '.png')
             
             iters += 1
 
-            # Plot the fake images from the last epoch
-            plt.figure(figsize=(10, 10))
-            plt.title("Fake Images")
-            plt.imshow(np.transpose(img_list[-1], (1, 2, 0)))
-            plt.savefig('./generated/generate_' + str(iters) + '.png')
 
 
     # Save models
