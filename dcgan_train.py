@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+import os
 import random
 import torch
 import torch.nn as nn
@@ -12,6 +13,7 @@ import torchvision.transforms as transforms
 import torchvision.utils as vutils
 import numpy as np
 import matplotlib.pyplot as plt
+import pylab
 
 import torch.backends.cudnn as cudnn
 
@@ -37,6 +39,8 @@ if __name__ == '__main__':
     print("Random Seed: ", manualSeed)
     random.seed(manualSeed)
     torch.manual_seed(manualSeed)
+
+    save_dir = 'save'
 
     dataroot = './data/celeba' # Root directory for dataset (subdirectory:img_align_celeba)
     # Celeb-A Faces dataset http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
@@ -107,11 +111,15 @@ if __name__ == '__main__':
 
     # Lists to keep track of progress
     img_list = []
-    G_losses = []
-    D_losses = []
+    d_losses = np.zeros(num_epochs)
+    g_losses = np.zeros(num_epochs)
+    real_scores = np.zeros(num_epochs)
+    fake_scores = np.zeros(num_epochs)
+
     iters = 0
 
-
+    
+    preview_count = 0
     # Training Loop
     print("Starting Training Loop...")
     for epoch in range(num_epochs):# For each epoch
@@ -171,8 +179,11 @@ if __name__ == '__main__':
                       % (epoch, num_epochs, i, len(dataloader), errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
 
             # Save Losses for plotting later
-            G_losses.append(errG.item())
-            D_losses.append(errD.item())
+            d_losses[epoch] = d_losses[epoch] * (i/(i+1.)) + errD.item() * (1./(i+1.))
+            g_losses[epoch] = g_losses[epoch] * (i/(i+1.)) + errG.item() * (1./(i+1.))
+
+            real_scores[epoch] = real_scores[epoch] * (i/(i+1.)) + D_x * (1./(i+1.))
+            fake_scores[epoch] = fake_scores[epoch] * (i/(i+1.)) + D_G_z1 * (1./(i+1.))
         
             # Check how the generator is doing by saving G's output on fixed_noise
             if (iters % 500 == 0) or ((epoch == num_epochs-1) and (i == len(dataloader)-1)):
@@ -184,7 +195,33 @@ if __name__ == '__main__':
                 plt.figure(figsize=(10, 10))
                 plt.title("Fake Images")
                 plt.imshow(np.transpose(img_list[-1], (1, 2, 0)))
-                plt.savefig('./generated/generate_' + str(iters) + '.png')
+                plt.savefig('./generated/generate_' + str(preview_count) + '.png')
+
+                preview_count += 1
+
+
+            # Save and plot Statistics
+            np.save(os.path.join(save_dir, 'd_losses.npy'), d_losses)
+            np.save(os.path.join(save_dir, 'g_losses.npy'), g_losses)
+            np.save(os.path.join(save_dir, 'fake_scores.npy'), fake_scores)
+            np.save(os.path.join(save_dir, 'real_scores.npy'), real_scores)
+    
+            plt.figure()
+            pylab.xlim(0, num_epochs + 1)
+            plt.plot(range(1, num_epochs + 1), d_losses, label='d loss')
+            plt.plot(range(1, num_epochs + 1), g_losses, label='g loss')    
+            plt.legend()
+            plt.savefig(os.path.join(save_dir, 'loss.pdf'))
+            plt.close()
+
+            plt.figure()
+            pylab.xlim(0, num_epochs + 1)
+            pylab.ylim(0, 1)
+            plt.plot(range(1, num_epochs + 1), fake_scores, label='fake score')
+            plt.plot(range(1, num_epochs + 1), real_scores, label='real score')    
+            plt.legend()
+            plt.savefig(os.path.join(save_dir, 'accuracy.pdf'))
+            plt.close()
             
             iters += 1
 
