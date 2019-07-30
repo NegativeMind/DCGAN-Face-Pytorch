@@ -110,7 +110,6 @@ if __name__ == '__main__':
     fake_label = 0
 
     # Lists to keep track of progress
-    img_list = []
     d_losses = np.zeros(num_epochs)
     g_losses = np.zeros(num_epochs)
     real_scores = np.zeros(num_epochs)
@@ -184,16 +183,17 @@ if __name__ == '__main__':
             fake_scores[epoch] = fake_scores[epoch] * (i/(i+1.)) + D_G_z1 * (1./(i+1.))
         
             # Check how the generator is doing by saving G's output on fixed_noise
-            if (iters % 500 == 0) or ((epoch == num_epochs-1) and (i == len(dataloader)-1)):
-                with torch.no_grad():
-                    fake = netG(fixed_noise).detach().cpu()
-                    img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
+            generated_image = []
+            with torch.no_grad():
+                fake = netG(fixed_noise).detach().cpu()
+                generated_image.append(vutils.make_grid(fake, padding=2, normalize=True))
 
             # Plot the fake images from the last epoch
             plt.figure(figsize=(10, 10))
             plt.title("Fake Images")
-            plt.imshow(np.transpose(img_list[-1], (1, 2, 0)))
+            plt.imshow(np.transpose(generated_image[-1], (1, 2, 0)))
             plt.savefig('./generated/generate_' + str(iters) + '.png')
+            plt.close()
 
             iters += 1
 
